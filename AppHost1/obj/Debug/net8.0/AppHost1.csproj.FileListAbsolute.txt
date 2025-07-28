@@ -240,3 +240,4 @@ C:\Users\jhravtin\RiderProjects\WebApplication2 - Copy\AppHost1\obj\Debug\net8.0
 C:\Users\jhravtin\RiderProjects\WebApplication2 - Copy\AppHost1\obj\Debug\net8.0\AppHost1.pdb
 C:\Users\jhravtin\RiderProjects\WebApplication2 - Copy\AppHost1\obj\Debug\net8.0\AppHost1.genruntimeconfig.cache
 C:\Users\jhravtin\RiderProjects\WebApplication2 - Copy\AppHost1\obj\Debug\net8.0\ref\AppHost1.dll
+C:\Users\jhravtin\RiderProjects\WebApplication2 - Copy\AppHost1\obj\Debug\net8.0\AppHost1.sourcelink.json

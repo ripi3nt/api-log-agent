@@ -30,11 +30,13 @@ builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<IAgentService, OpenAIService>();
 builder.Services.AddScoped<IFileService , FileService>();
 builder.Services.AddScoped<ILogService, SeqService>();
+builder.Services.AddScoped<IVCService, GitService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<TodoPlugin>();
 builder.Services.AddScoped<FilePlugin>();
 builder.Services.AddScoped<SeqPlugin>();
+builder.Services.AddScoped<VCSPlugin>();
 
 builder.Services.AddScoped(sp =>
 {
@@ -44,6 +46,7 @@ builder.Services.AddScoped(sp =>
     var todoPlugin = sp.GetRequiredService<TodoPlugin>();
     var filePlugin = sp.GetRequiredService<FilePlugin>();
     var  seqPlugin = sp.GetRequiredService<SeqPlugin>();
+    var vcsplugin = sp.GetRequiredService<VCSPlugin>();
     
     
     
@@ -51,6 +54,7 @@ builder.Services.AddScoped(sp =>
     kernel.Plugins.AddFromObject(todoPlugin);
     kernel.Plugins.AddFromObject(filePlugin);
     kernel.Plugins.AddFromObject(seqPlugin);
+    kernel.Plugins.AddFromObject(vcsplugin);
     
     
     return kernel;
