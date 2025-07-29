@@ -34,12 +34,14 @@ public class PromptController : Controller
     [HttpPost("rules")]
     public async Task<IActionResult> PromptRules([FromBody] PromptRequest request)
     {
-        KernelFunction[] kernelFunctions = new KernelFunction[_kernel.Plugins["filePlugin"].FunctionCount];
+        KernelFunction[] kernelFunctions = new KernelFunction[_kernel.Plugins["filePlugin"].FunctionCount + 1];
         IList<KernelFunctionMetadata> metadata = _kernel.Plugins["filePlugin"].GetFunctionsMetadata();
         for (int i = 0; i < _kernel.Plugins["filePlugin"].FunctionCount; i++)
         {
             kernelFunctions[i] = _kernel.Plugins[metadata[i].PluginName][metadata[i].Name];
         }
+        
+        kernelFunctions[kernelFunctions.Length - 1] = _kernel.Plugins["PostgresPlugin"]["query"];
 
         return await _aiService.Prompt(request.Prompt, "", kernelFunctions.ToArray());
     }

@@ -29,12 +29,23 @@ public class GitService : IVCService
         if (!commit.Parents.Any()) return new List<string>{"This is the root commit and does not have any parents"};
 
         var parent = commit.Parents.First();
-        var changes = repo.Diff.Compare<TreeChanges>(parent.Tree, commit.Tree);
+        var changes = repo.Diff.Compare<Patch>(parent.Tree, commit.Tree);
 
         List<string> diffs = new List<string>();
         foreach (var change in changes)
         {
-            diffs.Add($"{change.Status} : {change.Path}");
+            string fileChange = $"{change.Status} : {change.Path}";
+            foreach (var addedLine in change.AddedLines)
+            {
+                fileChange += $"\n+ {addedLine}";
+            }
+
+            foreach (var deletedLine in change.DeletedLines)
+            {
+                fileChange += $"\n- {deletedLine}";
+            }
+            
+            diffs.Add(fileChange);
         }
         
         return diffs;

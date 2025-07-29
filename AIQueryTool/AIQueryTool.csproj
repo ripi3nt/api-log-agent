@@ -20,10 +20,12 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.60.0" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.60.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.60.0" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+        <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
         <PackageReference Include="PdfPig" Version="0.1.10" />
         <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.2.2" />

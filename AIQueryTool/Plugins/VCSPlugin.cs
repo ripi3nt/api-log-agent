@@ -20,7 +20,7 @@ public class VCSPlugin
     }
 
     [KernelFunction]
-    [Description("Gets all the diffs of the commit and its first parent in the form: <diff-status> : <diff-path>")] 
+    [Description("Gets all the diffs of the commit and its first parent in the form: <diff-status> : <diff-path> and then a newline separated list of each line diff where added lines begin with + and deleted lines begin with -")] 
     public IEnumerable<string> GetCommitDiff(string sha)
     {
         return _service.GetCommitDiff(sha);

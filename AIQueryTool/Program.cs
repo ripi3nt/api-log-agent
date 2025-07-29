@@ -6,6 +6,7 @@ using AIToolbox.Models;
 using AIToolbox.Plugins;
 using AIToolbox.Services;
 using Microsoft.Extensions.AI;
+using ModelContextProtocol.Client;
 using WebApplication2.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,23 @@ builder.Services.AddScoped<FilePlugin>();
 builder.Services.AddScoped<SeqPlugin>();
 builder.Services.AddScoped<VCSPlugin>();
 
+IMcpClient mcpClient = await McpClientFactory.CreateAsync(new StdioClientTransport(new()
+{
+    Command = "docker", Arguments =
+    [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "POSTGRES_URL",
+        "mcp/postgres",
+        "postgres://postgres:admin@localhost:32774/postgres"
+    ],
+    Name = "Postgres MCP server"
+}));
+
+IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
+
 builder.Services.AddScoped(sp =>
 {
     //Kernel kernel = Kernel.CreateBuilder() .AddGoogleAIGeminiChatCompletion(modelId: "gemini-2.5-flash", apiKey: builder.Configuration["Gemini:ApiKey"]).Build();
@@ -49,13 +67,13 @@ builder.Services.AddScoped(sp =>
     var vcsplugin = sp.GetRequiredService<VCSPlugin>();
     
     
-    
-    
     kernel.Plugins.AddFromObject(todoPlugin);
     kernel.Plugins.AddFromObject(filePlugin);
     kernel.Plugins.AddFromObject(seqPlugin);
     kernel.Plugins.AddFromObject(vcsplugin);
-    
+#pragma warning disable SKEXP0001
+    kernel.Plugins.AddFromFunctions("PostgresPlugin", tools.Select(tool => tool.AsKernelFunction()));
+#pragma warning restore SKEXP0001
     
     return kernel;
 });
@@ -68,6 +86,7 @@ builder.Services.AddOpenAIEmbeddingGenerator(modelId:  "text-embedding-3-small",
 builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddIdentityCore<User>().AddEntityFrameworkStores<AppDbContext>().AddApiEndpoints();
+
 
 
 var app = builder.Build();
