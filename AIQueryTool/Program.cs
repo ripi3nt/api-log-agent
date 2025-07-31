@@ -32,6 +32,7 @@ builder.Services.AddScoped<IAgentService, OpenAIService>();
 builder.Services.AddScoped<IFileService , FileService>();
 builder.Services.AddScoped<ILogService, SeqService>();
 builder.Services.AddScoped<IVCService, GitService>();
+builder.Services.AddScoped<DataAnalysisService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<TodoPlugin>();
@@ -52,9 +53,47 @@ IMcpClient mcpClient = await McpClientFactory.CreateAsync(new StdioClientTranspo
         "postgres://postgres:admin@localhost:32774/postgres"
     ],
     Name = "Postgres MCP server"
-}));
+    }));
 
 IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
+
+IMcpClient gitlabMcp = await McpClientFactory.CreateAsync(new StdioClientTransport(new()
+{
+    Command = "docker",
+    Arguments =
+    [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITLAB_PERSONAL_ACCESS_TOKEN",
+        "-e",
+        "GITLAB_API_URL",
+        "-e",
+        "GITLAB_READ_ONLY_MODE",
+        "-e",
+        "USE_GITLAB_WIKI",
+        "-e",
+        "USE_MILESTONE",
+        "-e",
+        "USE_PIPELINE",
+        "iwakitakuma/gitlab-mcp"
+    ],
+    EnvironmentVariables = new Dictionary<string, string?>()
+    {
+        ["GITLAB_PERSONAL_ACCESS_TOKEN"] = "glpat-pmuWI0Aw8Ddw60PUoae2nm86MQp1OmZyYm16Cw.01.120pjr34p",
+        ["USE_READ_ONLY_MODE"] = "true",
+        ["USE_GITLAB_WIKI"] = "true",
+        ["USE_MILESTONE"] = "true",
+        ["USE_PIPELINE"] = "true",
+    },
+    Name = "Gitlab-tools"
+}));
+
+IList<McpClientTool> gitlabTools = await gitlabMcp.ListToolsAsync();
+
+gitlabTools = gitlabTools.Where(t => t.Name == "get_merge_request_diffs" || t.Name == "list_merge_requests" || t.Name == "create_note" || t.Name == "list_projects").ToList();
+
 
 builder.Services.AddScoped(sp =>
 {
@@ -73,6 +112,10 @@ builder.Services.AddScoped(sp =>
     kernel.Plugins.AddFromObject(vcsplugin);
 #pragma warning disable SKEXP0001
     kernel.Plugins.AddFromFunctions("PostgresPlugin", tools.Select(tool => tool.AsKernelFunction()));
+#pragma warning restore SKEXP0001
+    
+#pragma warning disable SKEXP0001
+    kernel.Plugins.AddFromFunctions("GitlabPlugin", gitlabTools.Select(tool => tool.AsKernelFunction()));
 #pragma warning restore SKEXP0001
     
     return kernel;

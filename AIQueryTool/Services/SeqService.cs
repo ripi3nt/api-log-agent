@@ -25,20 +25,28 @@ public class SeqService : ILogService
             logs.Add(evt.RenderedMessage);
         }
         
-        _logger.LogInformation("Rendered {Count} logs for seq filter: {Filters}", logs.Count, filters);
+        _logger.LogInformation("Retrieved {Count} logs for seq filter: {Filters}", logs.Count, filters);
 
         return logs;
     }
 
     public async Task<IEnumerable<object>> GetLogsInfo(string query)
     {
-        var res = await _conn.Data.QueryAsync(query);
-        _logger.LogInformation("SEQ data query : {Query}", query);
-        return res.Rows;
+        try
+        {
+            var res = await _conn.Data.QueryAsync(query);
+            _logger.LogInformation("SEQ data query : {Query}", query);
+            return res.Rows;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return new[] { ex.Message };
+
+        }
 
 
     }
-    
     
     public async Task<IEnumerable<string>> GetLogFields()
     {
@@ -50,4 +58,6 @@ public class SeqService : ILogService
         _logger.LogInformation("Retrieved MessageTemplate: {Count}", messageTemplates.Count);
         return messageTemplates;
 
-    }}
+    }
+
+}
